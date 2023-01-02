@@ -12,7 +12,7 @@ class Product extends Model
         'id',
         'name',
         'title',
-        'description', 'image', 'origin_price', 'sale_price', 'active'
+        'description', 'image', 'origin_price', 'sale_price', 'active', "category_id"
 
     ];
 
@@ -21,5 +21,12 @@ class Product extends Model
     {
 
         return $this->belongsTo(Category::class, "category_id", "id");
+    }
+
+
+    public function product_images()
+    {
+
+        return $this->hasMany(Product_images::class, "product_id", "id");
     }
 }

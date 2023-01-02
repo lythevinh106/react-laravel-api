@@ -24,7 +24,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 Route::resource('product', ProductController::class);
+
+
+Route::post('product/edit/{id}', [ProductController::class, "update"]);
+
+
+
 Route::resource('category', CategoryController::class);
+Route::post('category/edit/{id}', [CategoryController::class, "update"]);
 
 
 // Route::prefix('product')->group(function () {

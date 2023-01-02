@@ -35,15 +35,10 @@ class CategoryController extends Controller
         $responseCategory = $this->create_category($request);
 
 
-        // $data_demo = ["data-category22332431231232"];
-
-        // dd($responseCategory);
 
         return response()->json($responseCategory);
     }
-    public function create(Request $request)
-    {
-    }
+
 
     /**
      * Display the specified resource.
@@ -65,7 +60,9 @@ class CategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        // dd($request->all());
+        $response_update = $this->update_category($request, $id);
+        return response()->json($response_update);
     }
 
     /**
@@ -76,6 +73,7 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
+
         $category_result = $this->delete_category($id);
         return response()->json([$category_result]);
     }

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
+use App\Trait\ProductService;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -12,9 +14,10 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    use ProductService;
     public function index()
     {
-        $const = ["dulieu1", "dulieu2"];
+        $const = Product::find(1);
 
         return response()->json($const);
     }
@@ -27,10 +30,13 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->input("name"));
 
-        $const = ["dulieu1", "dulieu2", "dulieu3"];
+        $response_product = $this->create_product($request);
 
-        return response()->json($const);
+
+
+        return response()->json($response_product);
     }
 
     /**
@@ -53,7 +59,10 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        // dd($request->all());
+        $response_product = $this->update_product($request, $id);
+
+        return response()->json($response_product);
     }
 
     /**
@@ -64,6 +73,10 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $response_product = $this->delete_product($id);
+
+
+
+        return response()->json($response_product);
     }
 }
