@@ -43,11 +43,11 @@ trait UploadService
         $url_from_database = $url;
         $url_decode = url(urldecode($url_from_database));
         $short_url = strstr($url_decode, "/public");
-        if (Storage::disk('s3')->exists($short_url)) {
-            // dd("co $short_url");
-            Storage::disk('s3')->delete($short_url);
-        } else {
-            dd("không tìm thấy anh để xóa trong s3");
-        }
+        // if (Storage::disk('s3')->exists($short_url)) {
+        // dd("co $short_url");
+        Storage::disk('s3')->delete($short_url);
+        // } else {
+        //     dd("không tìm thấy anh để xóa trong s3");
+        // }
     }
 }

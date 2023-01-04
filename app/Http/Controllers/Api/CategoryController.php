@@ -15,12 +15,13 @@ class CategoryController extends Controller
      */
 
     use CategoryService;
-    public function index()
+    public function list(Request $request)
     {
-        $data_demo = ["đây là cateegory"];
+        // dd($request->all());
 
+        $response = $this->show_category($request);
 
-        return response()->json($data_demo);
+        return response()->json($response);
     }
 
     /**

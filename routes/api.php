@@ -32,6 +32,7 @@ Route::post('product/edit/{id}', [ProductController::class, "update"]);
 
 Route::resource('category', CategoryController::class);
 Route::post('category/edit/{id}', [CategoryController::class, "update"]);
+Route::get('category', [CategoryController::class, "list"]);
 
 
 // Route::prefix('product')->group(function () {

@@ -15,6 +15,25 @@ trait CategoryService
 
 
 
+    public function show_category($request)
+    {
+
+        $limit = $request->limit ?? 4;
+        $sort = $request->sort ?? "asc";
+
+
+        $query =  Category::orderBy("id", $sort);
+
+        if ($request->has("search")) {
+
+
+            $query->where("name", "LIKE", "%$request->search%");
+        }
+
+        return $query->paginate($limit)->withQueryString();
+    }
+
+
     public function create_category($request)
     {
 

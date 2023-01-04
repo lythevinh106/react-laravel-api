@@ -134,49 +134,65 @@ trait ProductService
 
                 ], 400);
             } else {
+                $category_exist = Category::where("id", $request->input("category_id"))->first();
+                // dd($category_exist->is_null());
+                if ($category_exist === null) {
 
-                $product_exist = Product::where("id", $product_id)->count();;
-
-
-                if ($product_exist <= 0) {
 
                     return response()->json([
                         "status" => 400,
-                        "message" => "Sản phẩm Không Có Trong Hệ Thống vui lòng kiểm tra lại id",
+                        "message" => "category is not exist",
 
 
                     ], 400);
                 } else {
 
-                    $query = Product::find($product_id);
-                    $query->fill($request->input());
 
-                    if ($request->has("image")) {
-                        $this->delete_s3($query->image);
-                        $path_image =  $this->upload_image($request->file("image"));
-                        $query->image = $path_image;
-                    }
-                    $query->save();
-                    //// delete old product image
-                    $product_images_delete = Product_images::where("product_id", $product_id)->get();
-                    if ($product_images_delete->first() == true) {
-                        foreach ($product_images_delete as $image) {
-                            // dd($image->name);
-                            $this->delete_s3($image->name);
+                    $product_exist = Product::where("id", $product_id)->count();
+
+
+
+
+                    if ($product_exist <= 0) {
+
+                        return response()->json([
+                            "status" => 400,
+                            "message" => "Sản phẩm Không Có Trong Hệ Thống vui lòng kiểm tra lại id",
+
+
+                        ], 400);
+                    } else {
+
+                        $query = Product::find($product_id);
+                        $query->fill($request->input());
+
+                        if ($request->has("image")) {
+                            $this->delete_s3($query->image);
+                            $path_image =  $this->upload_image($request->file("image"));
+                            $query->image = $path_image;
                         }
-                    }
-                    //// update product image
-                    Product::find($product_id)->product_images()->delete();
-                    if ($request->has("product_images")) {
-                        // dd($request->file("product_images"));
-                        foreach ($request->file("product_images") as $image) {
+                        $query->save();
+                        //// delete old product image
+                        $product_images_delete = Product_images::where("product_id", $product_id)->get();
+                        if ($product_images_delete->first() == true) {
+                            foreach ($product_images_delete as $image) {
+                                // dd($image->name);
+                                $this->delete_s3($image->name);
+                            }
+                        }
+                        //// update product image
+                        Product::find($product_id)->product_images()->delete();
+                        if ($request->has("product_images")) {
+                            // dd($request->file("product_images"));
+                            foreach ($request->file("product_images") as $image) {
 
-                            $path = $this->upload_image($image);
-                            Product_images::create([
-                                "product_id" => $product_id,
-                                "name" => $path
+                                $path = $this->upload_image($image);
+                                Product_images::create([
+                                    "product_id" => $product_id,
+                                    "name" => $path
 
-                            ]);
+                                ]);
+                            }
                         }
                     }
 
