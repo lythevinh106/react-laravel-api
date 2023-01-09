@@ -11,10 +11,62 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use PhpParser\Node\Stmt\Foreach_;
+use Illuminate\Database\Eloquent\Builder;
 
 trait ProductService
 {
     use UploadService;
+
+
+
+
+
+
+    public function show_products($request)
+    {
+        // dd($request->all());
+
+        $limit = $request->limit ?? 5;
+        $sort = $request->sort ?? "asc";
+
+
+
+
+
+
+        // $query =  Product::orderBy("id", $sort);
+
+        if ($request->has("random")) {
+            $query_product =  Product::inRandomOrder();
+        } else {
+            $query_product =  Product::orderBy("id", $sort);
+        }
+
+        if ($request->has("search")) {
+
+
+            $query_product->where("name", "LIKE", "%$request->search%");
+        }
+
+        if ($request->has("slug_cat")) {
+
+
+            $query_product->whereHas('category', function (Builder $query) use ($request) {
+
+                $query->where('slug', $request->input("slug_cat"));
+            });
+        }
+
+
+        if ($request->has("cat")) {
+            $query_product->where('category_id', $request->input("cat"));
+        }
+
+
+        // $query_product->inRandomOrder();
+
+        return $query_product->paginate($limit)->withQueryString();
+    }
 
 
     public function create_product($request)
@@ -25,11 +77,11 @@ trait ProductService
             $validator = Validator::make(
                 $request->all(),
                 [
-                    "name" => "min:4|max:100|required",
+                    "name" => "min:4|max:1000|required",
                     "origin_price" => "min:3|integer|gt:sale_price",
                     "sale_price" => "min:3|integer",
-                    "title" => "min:3|max:300|required",
-                    "image" => "max:1000000|mimes:jpg,jpeg,png,jpe,gif",
+                    "title" => "min:3|max:3000|required",
+                    "image" => "max:10000000|mimes:jpg,jpeg,png,jpe,gif",
                     "description" => "required",
                     "category_id" => "integer|required",
 
@@ -114,7 +166,7 @@ trait ProductService
                     "origin_price" => "min:3|integer|gt:sale_price",
                     "sale_price" => "min:3|integer",
                     "title" => "min:3|max:300|required",
-                    "image" => "required",
+
                     "description" => "required",
                     "category_id" => "integer|required",
 
@@ -173,17 +225,22 @@ trait ProductService
                         }
                         $query->save();
                         //// delete old product image
-                        $product_images_delete = Product_images::where("product_id", $product_id)->get();
-                        if ($product_images_delete->first() == true) {
-                            foreach ($product_images_delete as $image) {
-                                // dd($image->name);
-                                $this->delete_s3($image->name);
+                        if ($request->has("image")) {
+
+
+                            $product_images_delete = Product_images::where("product_id", $product_id)->get();
+                            if ($product_images_delete->first() == true) {
+                                foreach ($product_images_delete as $image) {
+                                    // dd($image->name);
+                                    $this->delete_s3($image->name);
+                                }
                             }
                         }
                         //// update product image
-                        Product::find($product_id)->product_images()->delete();
+
                         if ($request->has("product_images")) {
                             // dd($request->file("product_images"));
+                            Product::find($product_id)->product_images()->delete();
                             foreach ($request->file("product_images") as $image) {
 
                                 $path = $this->upload_image($image);
@@ -202,7 +259,8 @@ trait ProductService
                 DB::commit();
 
                 return response()->json([
-                    "code" => "200",
+
+                    "status" => 200,
                     "message" => "cập nhật sản phẩm thành công ",
                     "data" => Product::find($product_id)
                 ]);

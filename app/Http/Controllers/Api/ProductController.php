@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Product;
+use App\Models\Product_images;
 use App\Trait\ProductService;
 use Illuminate\Http\Request;
 
@@ -15,6 +17,15 @@ class ProductController extends Controller
      * @return \Illuminate\Http\Response
      */
     use ProductService;
+
+
+    public function list(Request $request)
+    {
+
+        $response = $this->show_products($request);
+
+        return response()->json($response);
+    }
     public function index()
     {
         $const = Product::find(1);
@@ -47,7 +58,50 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        //
+
+
+
+        $count = Product::where("id", $id)->count();
+        if ($count < 1) {
+
+            return response()->json(
+                [
+                    "code" => 400,
+                    "message" => "not found product",
+
+                ],
+                400
+            );
+        } else {
+
+
+            $data_product = Product::find($id);
+            $data_product_images = Product::find($id)->product_images()->get();
+            return response()->json(
+                [
+                    "code" => 200,
+                    "message" => "Get Product Success",
+                    "data" => [
+                        "product" => $data_product,
+                        "product_images" => $data_product_images
+                    ]
+                ],
+                200
+            );
+        }
+    }
+
+
+    public function show_product_images($id)
+    {
+
+        $product_images = Product::find($id)->product_images()->get();
+        // dd($product_images);
+
+        return response()->json([
+            "code" => 200,
+            "data" =>  $product_images
+        ], 200);
     }
 
     /**
@@ -78,5 +132,31 @@ class ProductController extends Controller
 
 
         return response()->json($response_product);
+    }
+
+
+    public function show_product_of_category($slug)
+    {
+
+
+
+        $count_category = Category::where("slug", $slug)->count();
+        if ($count_category >= 1) {
+
+            $data = Category::where("slug", $slug)->get();
+            return response()->json([
+                "code" => 200,
+                "message" => "Get Product success",
+                "data" => $data
+            ], 200);
+        } else {
+
+
+            return response()->json([
+                "code" => 400,
+                "message" => "product not found",
+
+            ], 400);
+        }
     }
 }

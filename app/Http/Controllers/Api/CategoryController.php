@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Trait\CategoryService;
 
@@ -49,7 +50,18 @@ class CategoryController extends Controller
      */
     public function show($id)
     {
-        //
+        $category = Category::find($id);
+        if (!$category) {
+            return response()->json([
+                "code" => 400,
+                "data" => "Danh mục không có trong hệ thống"
+            ], 400);
+        }
+
+        return response()->json([
+            "code" => 200,
+            "data" => $category
+        ], 200);
     }
 
     /**
