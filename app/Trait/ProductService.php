@@ -58,6 +58,15 @@ trait ProductService
         }
 
 
+
+        if ($request->has("from")) {
+
+            $query_product->whereBetween('sale_price', [$request->input("from"), $request->input("to")]);
+        }
+
+
+
+
         if ($request->has("cat")) {
             $query_product->where('category_id', $request->input("cat"));
         }

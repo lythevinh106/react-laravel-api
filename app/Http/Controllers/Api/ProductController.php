@@ -135,15 +135,19 @@ class ProductController extends Controller
     }
 
 
-    public function show_product_of_category($slug)
+    public function show_other_product(Request $request, $product_id)
     {
 
 
 
-        $count_category = Category::where("slug", $slug)->count();
-        if ($count_category >= 1) {
+        $exist_category = Product::find($product_id)->category()->first("id")->id;
 
-            $data = Category::where("slug", $slug)->get();
+
+        $limit = $request->limit ?? 7;
+        if ($exist_category  >= 1) {
+
+            $data = Product::where("category_id", $exist_category)->inRandomOrder()->limit($limit)->get();
+
             return response()->json([
                 "code" => 200,
                 "message" => "Get Product success",

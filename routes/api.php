@@ -29,7 +29,7 @@ Route::resource('product', ProductController::class);
 Route::post('product/edit/{id}', [ProductController::class, "update"]);
 Route::get('products', [ProductController::class, "list"]);
 Route::get('productImages/{id}', [ProductController::class, "show_product_images"]);
-Route::get('products/ofCategory/{slug}', [ProductController::class, "show_product_of_category"]);
+Route::get('product/ofCategory/{product_id}', [ProductController::class, "show_other_product"]);
 
 
 
