@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ProductController;
 use Illuminate\Http\Request;
@@ -36,6 +37,14 @@ Route::get('product/ofCategory/{product_id}', [ProductController::class, "show_o
 Route::resource('category', CategoryController::class);
 Route::post('category/edit/{id}', [CategoryController::class, "update"]);
 Route::get('category', [CategoryController::class, "list"]);
+
+
+
+
+/////cart
+Route::resource('cart', CartController::class);
+
+
 
 
 // Route::prefix('product')->group(function () {
