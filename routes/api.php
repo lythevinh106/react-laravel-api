@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\Auth;
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ProductController;
@@ -43,6 +45,16 @@ Route::get('category', [CategoryController::class, "list"]);
 
 /////cart
 Route::resource('cart', CartController::class);
+
+
+
+////auth
+
+// Route::resource('auth', AuthController::class);
+Route::post('auth/register', [AuthController::class, "register"]);
+Route::get('auth/verify/{id}/{token}', [AuthController::class, "verify"]);
+
+
 
 
 
