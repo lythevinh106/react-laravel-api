@@ -54,6 +54,14 @@ Route::resource('cart', CartController::class);
 Route::post('auth/register', [AuthController::class, "register"]);
 Route::get('auth/verify/{id}/{token}', [AuthController::class, "verify"]);
 
+Route::post('auth/login', [AuthController::class, "login"]);
+
+Route::post('auth/logout', [AuthController::class, "logout"]);
+
+Route::post('auth/refresh/{refresh_token}', [AuthController::class, "refresh"]);
+Route::post('auth/me', [AuthController::class, "me"]);
+Route::post('auth/payload', [AuthController::class, "payload"]);
+
 
 
 
