@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Trait\CartService;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
@@ -16,10 +16,40 @@ class CartController extends Controller
      */
 
     use CartService;
+
+    public function __construct()
+    {
+        $this->middleware(['jwtAuth'], ['only' => ['add_cart_auth', 'show_cart_auth', 'update_cart_auth']]);
+    }
     public function index()
     {
-        // return view("mails.order_success");
     }
+
+    public function update_cart_auth(Request $request, $userId)
+    {
+        $response = $this->update_cart_for_auth($request, $userId);
+
+        return response()->json($response);
+    }
+    public function add_cart_auth(Request $request)
+    {
+
+
+        $response = $this->add_cart_for_auth($request);
+
+        return response()->json($response);
+    }
+
+    public function show_cart_auth($userId, Request $request)
+    {
+
+
+        $response = $this->show_cart_for_auth($userId);
+
+        return response()->json($response);
+    }
+
+
 
     /**
      * Show the form for creating a new resource.

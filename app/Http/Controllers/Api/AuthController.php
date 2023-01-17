@@ -32,7 +32,7 @@ class AuthController extends Controller
 
     public function __construct()
     {
-        $this->middleware('jwtAuth', ['except' => ['login', 'register']]);
+        $this->middleware(['jwtAuth'], ['except' => ['login', 'register']]);
     }
 
 
@@ -220,6 +220,14 @@ class AuthController extends Controller
     {
         $payload = auth()->payload();
 
+
+
+        $refresh_token = Str::random(20);
+        $user = Auth::user();
+        $user->refresh_token = $refresh_token;
+        $user->save();
+
+
         if (Auth::user()->refresh_token == $refresh_token) {
             return response()->json([
                 'status' => 'success',
@@ -227,6 +235,7 @@ class AuthController extends Controller
                 'authorisation' => [
                     'token' => Auth::refresh(),
                     'type' => 'bearer',
+                    "refresh_token" => $refresh_token
                 ]
             ]);
         } else {

@@ -45,6 +45,9 @@ Route::get('category', [CategoryController::class, "list"]);
 
 /////cart
 Route::resource('cart', CartController::class);
+Route::post('addCartAuth', [CartController::class, "add_cart_auth"]);
+Route::get('showCartAuth/{userId}', [CartController::class, "show_cart_auth"]);
+Route::post('updateCartAuth/{userId}', [CartController::class, "update_cart_auth"]);
 
 
 

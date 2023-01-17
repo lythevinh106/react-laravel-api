@@ -42,4 +42,11 @@ class Product extends Model
 
         return $this->belongsToMany(Order::class, "order_items");
     }
+
+
+    public function carts()
+    {
+
+        return $this->hasMany(Cart::class, "product_id", "id");
+    }
 }
