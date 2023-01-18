@@ -10,6 +10,7 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Order_items;
 use App\Models\Product;
+use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Response;
@@ -108,7 +109,7 @@ trait CartService
         }
     }
 
-    public function update_cart_for_auth($request, $useId)
+    public function update_cart_for_auth($request)
     {
         // dd($request->all(), $useId);
         if (Auth::user()) {
@@ -190,6 +191,169 @@ trait CartService
             ], 400);
         }
     }
+
+
+
+
+
+    public function delete_cart_for_auth($request)
+    {
+
+
+
+        // dd($request->all(), $useId);
+        if (Auth::user()) {
+            // dd("da dang nhap");
+            DB::beginTransaction();
+
+            try {
+
+                $validator = Validator::make(
+                    $request->all(),
+                    [
+                        "user_id" => "required|integer",
+                        "product_id" => "required|integer",
+
+                    ],
+
+                );
+
+                if ($validator->fails()) {
+                    return response()->json([
+                        "status" => 400,
+                        "message" => "dữ liệu không đúng đinh dạng",
+                        "error" => $validator->errors()
+
+                    ], 400);
+                } else {
+
+                    ///insert cart
+                    $cart =  Cart::where("user_id", $request->user_id)->where("product_id", $request->product_id);
+                    $exist = $cart->count();
+                    if ($exist > 0) {
+
+                        $cart->delete();
+                    } else {
+
+
+                        return response()->json([
+                            "status" => 400,
+                            "message" => "không tìm thấy thông tin giỏ hàng ",
+
+
+                        ], 400);
+                    }
+
+                    DB::commit();
+
+                    return response()->json([
+                        "status" => 200,
+                        "message" => "Xóa Sản Phẩm Trong  Giỏ Hàng Thành Công ",
+
+
+                    ], 200);
+                }
+            } catch (\Exception $e) {
+
+
+                DB::rollBack();
+
+                return response()->json([
+                    "code" => "400",
+                    "message" => $e->getMessage(),
+
+                ], 400);
+            }
+        } else {
+
+            return response()->json([
+                "code" => "401",
+                "message" => "auth not valid",
+
+            ], 401);
+        }
+    }
+
+
+
+    public function remove_all_cart_for_auth($request)
+    {
+
+
+
+        // dd($request->all());
+        if (Auth::user()) {
+            // dd("da dang nhap");
+            DB::beginTransaction();
+
+            try {
+
+                $validator = Validator::make(
+                    $request->all(),
+                    [
+                        "user_id" => "required|integer",
+
+
+                    ],
+
+                );
+
+                if ($validator->fails()) {
+                    return response()->json([
+                        "status" => 400,
+                        "message" => "dữ liệu không đúng đinh dạng",
+                        "error" => $validator->errors()
+
+                    ], 400);
+                } else {
+
+                    ///insert cart
+                    $cart =  Cart::where("user_id", $request->user_id);
+                    $exist = $cart->count();
+                    if ($exist > 0) {
+
+                        $cart->delete();
+                    } else {
+
+
+                        return response()->json([
+                            "status" => 400,
+                            "message" => "không tìm thấy thông tin giỏ hàng ",
+
+
+                        ], 400);
+                    }
+
+                    DB::commit();
+
+                    return response()->json([
+                        "status" => 200,
+                        "message" => "Xóa Sản Phẩm Trong  Giỏ Hàng Thành Công ",
+
+
+                    ], 200);
+                }
+            } catch (\Exception $e) {
+
+
+                DB::rollBack();
+
+                return response()->json([
+                    "code" => "400",
+                    "message" => $e->getMessage(),
+
+                ], 400);
+            }
+        } else {
+
+            return response()->json([
+                "code" => "401",
+                "message" => "auth not valid",
+
+            ], 401);
+        }
+    }
+
 
 
     public function show_cart_for_auth($useId)
@@ -420,6 +584,125 @@ trait CartService
     }
 
 
+    public function payment_for_auth($request)
+    {
+
+        // dd($request->userId);
+
+        DB::beginTransaction();
+
+        try {
+
+            $validator = Validator::make(
+                $request->all(),
+                [
+                    "user_id" => "required|integer",
+
+
+
+                ],
+
+            );
+
+
+            if ($validator->fails()) {
+
+
+
+                return response()->json([
+                    "status" => 400,
+                    "message" => "dữ liệu không đúng đinh dạng",
+                    "error" => $validator->errors()
+
+                ], 400);
+            } else {
+
+
+
+
+                $order_create = Order::create([
+                    "user_id" =>    $request->user_id,
+                    "order_date" => Carbon::now(),
+                    "order_token" => $this->create_token(),
+                    "status" => 0
+                ]);
+
+
+                ///insert order_item
+                $info_products = Cart::where("user_id", $request->user_id)->get();;
+
+                // dd($info_products);
+                // dd($request->input("cart_info"));
+
+                // dd($info_products[0]["id"]);
+                foreach ($info_products as $info_product) {
+                    // dd($info_product["id"]);
+                    Product::find($info_product["product_id"])->orders()
+                        ->attach($order_create->id, ["quantity" => $info_product["quantity"]]);
+                }
+
+
+
+                ////delete_cart_when_order
+
+                Cart::where("user_id", $request->user_id)->delete();
+
+
+                ///set total for mail
+
+                $data_order =   Order_items::where("order_id", $order_create->id);
+                $total_price = 0;
+
+                foreach ($data_order as $order) {
+                    $total_price += $order->quantity * $order->product->sale_price;
+                }
+
+
+                $user_info = User::find($request->user_id);
+
+
+                $data = [
+                    "time_order" => Carbon::now()->format("d m Y \\và\\o \l\ú\c H \G\i\ờ i \P\h\ú\\t s \G\i\â\y"),
+                    "name" =>  $user_info->name,
+                    "email" => $user_info->email,
+                    "order_token" => $order_create->order_token,
+                    "address" => $user_info->address,
+                    "note" => " ",
+                    "phone" => $user_info->phone,
+                    "order_items" => Order_items::where("order_id", $order_create->id)->get(),
+                    "total" => $total_price
+
+                ];
+
+
+
+
+
+                DB::commit();
+
+
+                SendMailWhenOrderSuccess::dispatch($user_info->email, $data);
+
+                // Mail::to($customer->email)->send(new SendMailOrderSuccess($data));
+
+                return response()->json([
+                    "status" => 200,
+                    "message" => "Thanh Toán Giỏ Hàng Thành Công ",
+
+
+                ]);
+            }
+        } catch (\Exception $e) {
+
+
+            DB::rollBack();
+            return response()->json([
+                "code" => "400",
+                "message" => $e->getMessage(),
+
+            ], 400);
+        }
+    }
 
     function create_token()
     {

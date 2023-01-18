@@ -47,7 +47,10 @@ Route::get('category', [CategoryController::class, "list"]);
 Route::resource('cart', CartController::class);
 Route::post('addCartAuth', [CartController::class, "add_cart_auth"]);
 Route::get('showCartAuth/{userId}', [CartController::class, "show_cart_auth"]);
-Route::post('updateCartAuth/{userId}', [CartController::class, "update_cart_auth"]);
+Route::post('updateCartAuth', [CartController::class, "update_cart_auth"]);
+Route::post('deleteCartAuth', [CartController::class, "delete_cart_auth"]);
+Route::post('removeAllCartAuth', [CartController::class, "remove_all_cart_auth"]);
+Route::post('paymentAuth', [CartController::class, "payment_auth"]);
 
 
 
@@ -64,6 +67,8 @@ Route::post('auth/logout', [AuthController::class, "logout"]);
 Route::post('auth/refresh/{refresh_token}', [AuthController::class, "refresh"]);
 Route::post('auth/me', [AuthController::class, "me"]);
 Route::post('auth/payload', [AuthController::class, "payload"]);
+
+Route::post('auth/updateInfo', [AuthController::class, "update_info"]);
 
 
 

@@ -19,15 +19,42 @@ class CartController extends Controller
 
     public function __construct()
     {
-        $this->middleware(['jwtAuth'], ['only' => ['add_cart_auth', 'show_cart_auth', 'update_cart_auth']]);
+        $this->middleware(['jwtAuth'], ['only' => ['add_cart_auth', 'show_cart_auth', 'update_cart_auth', 'payment_for_auth']]);
     }
     public function index()
     {
     }
 
-    public function update_cart_auth(Request $request, $userId)
+
+    public function payment_auth(Request $request)
     {
-        $response = $this->update_cart_for_auth($request, $userId);
+        $response = $this->payment_for_auth($request);
+
+        return response()->json($response);
+    }
+
+    public function update_cart_auth(Request $request)
+    {
+        $response = $this->update_cart_for_auth($request);
+
+        return response()->json($response);
+    }
+
+    public function delete_cart_auth(Request $request)
+    {
+        $response = $this->delete_cart_for_auth($request);
+
+        return response()->json($response);
+    }
+
+
+
+
+    public function remove_all_cart_auth(Request $request)
+    {
+
+
+        $response = $this->remove_all_cart_for_auth($request);
 
         return response()->json($response);
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Trait\AuthService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -32,7 +33,7 @@ class AuthController extends Controller
 
     public function __construct()
     {
-        $this->middleware(['jwtAuth'], ['except' => ['login', 'register']]);
+        $this->middleware(['jwtAuth'], ['except' => ['login', 'register', 'verify']]);
     }
 
 
@@ -56,6 +57,14 @@ class AuthController extends Controller
         $response = $this->verify_account($request, $id, $token);
 
         return $response;
+    }
+
+
+    public function update_info(Request $request)
+    {
+        $response = $this->update_account($request);
+
+        return response()->json($response);
     }
 
 
@@ -141,7 +150,7 @@ class AuthController extends Controller
 
 
         $token = JWTAuth::attempt($credentials);
-        if (!$token) {
+        if (!$token || User::where("email", $request->email)->value("email_verified_at") == null) {
             return response()->json([
                 'status' => 400,
                 'message' => 'info not valid',
