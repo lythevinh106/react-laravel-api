@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Auth;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -72,6 +73,20 @@ Route::post('auth/updateInfo', [AuthController::class, "update_info"]);
 
 
 
+/////order
+
+
+
+Route::resource('order', OrderController::class);
+Route::post('order/showAll', [OrderController::class, "showAll"]);
+Route::post('order/showDetailOrder/{order_id}', [OrderController::class, "showDetail"]);
+Route::post('order/removeOrder/{order_id}', [OrderController::class, "removeOrder"]);
+
+Route::post('order/checkToken/{token}', [OrderController::class, "checkToken"]);
+
+
+
+// Route::post('order/showAll', [OrderController::class, "showAll"]);
 
 
 
