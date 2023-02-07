@@ -85,6 +85,11 @@ Route::post('order/removeOrder/{order_id}', [OrderController::class, "removeOrde
 Route::post('order/checkToken/{token}', [OrderController::class, "checkToken"]);
 
 
+Route::get('demoDeploy', function () {
+    dd("deloy demo");
+});
+
+
 
 // Route::post('order/showAll', [OrderController::class, "showAll"]);
 
