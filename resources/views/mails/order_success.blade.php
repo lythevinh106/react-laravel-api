@@ -69,7 +69,7 @@
                                             <tr>
                                                 <td>
                                                     <p>Chào quý khách,</p>
-                                                    <p>Mobile24h gửi đến quý khách hóa đơn điện tử
+                                                    <p>HaloShop gửi đến quý khách hóa đơn điện tử
                                                     </p>
                                                     <p><b>Lưu ý:</b></p>
                                                     {{-- <ul>
@@ -207,8 +207,15 @@
                                                             <li><strong style="">Mã hóa đơn của quý khách:
                                                                     {{ $data['order_token'] }} - Quý Khách có thể dùng
                                                                     mã này để kiểm tra ở trong trang web của chúng
-                                                                    tôi</strong>
+                                                                    tôi tại đây  
+                                                                <a href="{{ env('APP_CLIENT_URL') . 'order/check' }}">
+                                                                check đơn hàng
+                                                                </a>
+                                                                </strong>
+
+                                                                    
                                                             </li>
+                                                            
 
                                                         </ul>
 
@@ -218,15 +225,17 @@
                                             </tr>
                                             <tr>
                                                 <td>
-                                                    <p
+                                                    {{-- <p
                                                         style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#444;line-height:18px;font-weight:normal">
                                                         Xem thêm
                                                         <a href="http://hotro.tiki.vn/hc/vi/?utm_source=transactional+email&amp;utm_medium=email&amp;utm_term=logo&amp;utm_campaign=new+order"
-                                                            title="Các câu hỏi thường gặp " target="_blank"
+                                                            title=" check đơn hàng tại đây " target="_blank"
                                                             data-saferedirecturl="https://www.google.com/url?q=http://hotro.tiki.vn/hc/vi/?utm_source%3Dtransactional%2Bemail%26utm_medium%3Demail%26utm_term%3Dlogo%26utm_campaign%3Dnew%2Border&amp;source=gmail&amp;ust=1647253055519000&amp;usg=AOvVaw2QkHUm1ms96sgbLKRD85ST"><strong>các
-                                                                câu hỏi thường
-                                                                gặp</strong>.</a>
-                                                    </p>
+                                                               check đơn hàng tại đây
+                                                            
+                                                            
+                                                            </strong>.</a>
+                                                    </p> --}}
                                                     {{-- <p
                                                     style="margin:10px 0 0 0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#444;line-height:18px;font-weight:normal">
                                                     Truy cập <a href="http://hotro.tiki.vn"
@@ -243,12 +252,12 @@
                                                     <br>
                                                     <p
                                                         style="font-family:Arial,Helvetica,sans-serif;font-size:12px;margin:0;padding:0;line-height:18px;color:#444;font-weight:bold">
-                                                        Mobile24h cảm ơn quý khách,
+                                                       HaloShop cảm ơn quý khách,
                                                         <br>
                                                     </p>
                                                     <p
                                                         style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#444;line-height:18px;font-weight:normal;text-align:right">
-                                                        <strong style="color:#1dade7">Mobile24H</strong><br>
+                                                        <strong style="color:#1dade7">HaloShop</strong><br>
                                                     </p>
                                                 </td>
                                             </tr>

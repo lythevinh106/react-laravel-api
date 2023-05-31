@@ -46,7 +46,7 @@
                                                 <td>
                                                     <p>Chào quý khách,</p>
                                                     <p>Quý Khách Đã Đăng Kí Thành Công Vui Long Quay Lại Trang Chủ Của Chúng Tôi để Đăng nhập tại đây <a
-                                                            href="http://localhost:3000">Nhấn
+                                                            href="{{ env('APP_CLIENT_URL')}}">Nhấn
                                                             Vào Đây</a>
                                                     </p>
 

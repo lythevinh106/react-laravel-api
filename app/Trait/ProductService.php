@@ -3,8 +3,11 @@
 namespace App\Trait;
 
 use App\Models\Category;
+use App\Models\Comment;
 use App\Models\Product;
 use App\Models\Product_images;
+use App\Models\Rate;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -31,9 +34,6 @@ trait ProductService
 
 
 
-
-
-
         // $query =  Product::orderBy("id", $sort);
 
         if ($request->has("random")) {
@@ -41,6 +41,9 @@ trait ProductService
         } else {
             $query_product =  Product::orderBy("id", $sort);
         }
+
+
+
 
         if ($request->has("search")) {
 
@@ -71,10 +74,14 @@ trait ProductService
             $query_product->where('category_id', $request->input("cat"));
         }
 
+        // dd($query_product->with('rates')->paginate($limit)->withQueryString());
 
         // $query_product->inRandomOrder();
 
-        return $query_product->paginate($limit)->withQueryString();
+        return $query_product->with(['rates' => function ($query) {
+            $query->select('product_id', DB::raw('AVG(rating) as average_rating'))
+                ->groupBy('product_id');
+        }])->paginate($limit)->withQueryString();
     }
 
 
@@ -328,6 +335,168 @@ trait ProductService
 
                 ], 200);
             }
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                "code" => "400",
+                "message" => $e->getMessage(),
+
+            ], 400);
+        }
+    }
+
+
+    public function update_rating($request, $product_id)
+    {
+
+
+        // $checkExitsRating = Rate::where("product_id", $product_id)->where("user_id", $request->input("userID"))->count();
+
+
+        DB::beginTransaction();
+        try {
+
+            $user = Rate::updateOrCreate(
+                [
+                    'product_id' => $product_id,
+                    'user_id' => $request->input("userID"),
+                ],
+                [
+                    'rating' => $request->input("rating"),
+                    'user_id' => $request->input("userID"),
+                    'product_id' =>  $product_id
+                ]
+            );
+
+
+
+
+
+            DB::commit();
+
+
+            return response()->json([
+                "code" => "200",
+                "message" => "Đánh Giá Sản Phẩm Thành Công",
+
+            ], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                "code" => "400",
+                "message" => $e->getMessage(),
+
+            ], 400);
+        }
+    }
+
+
+    public function check_rating($request, $product_id)
+    {
+        // dd("sad");
+
+        DB::beginTransaction();
+        try {
+            $checkExitsRating = Rate::where("product_id", $product_id)->where("user_id", $request->input("userID"))->count();
+
+            if ($checkExitsRating >= 1) {
+                $result =  Rate::where("product_id", $product_id)->where("user_id", $request->input("userID"))->value("rating");
+            } else {
+                $result = 0;
+            }
+
+            DB::commit();
+
+
+            return response()->json([
+                "code" => "200",
+                "result" => $result,
+                "message" => "Check rating thành công",
+
+            ], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                "code" => "400",
+                "message" => $e->getMessage(),
+
+            ], 400);
+        }
+    }
+
+
+    public function add_comment($request, $product_id)
+    {
+
+        DB::beginTransaction();
+        try {
+
+            $data = [
+                'parent_comment_id' => $request->input("parentCommentID"),
+                'user_id' => $request->input("userID"),
+                'product_id' => $product_id,
+                'comment_text' => $request->input("commentText"),
+
+
+            ];
+
+
+            // dd($data);
+
+            $comment = Comment::create($data);
+            // $user = User::find($request->userID);
+            $comment->user_name = $comment->user->name;
+
+            DB::commit();
+
+
+
+
+            return response()->json([
+                "code" => "200",
+                "data" => $comment,
+                "message" => "Thêm Comment thành công",
+
+            ], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                "code" => "400",
+                "message" => $e->getMessage(),
+
+            ], 400);
+        }
+    }
+
+
+
+    public function show_comment($request, $product_id)
+    {
+
+        DB::beginTransaction();
+        try {
+
+
+
+
+            // dd($data);
+
+            $comment = Comment::where('product_id', $product_id)->with('user') // Tải thông tin từ bảng users
+                ->get();
+
+            
+
+            DB::commit();
+
+
+
+
+            return response()->json([
+                "code" => "200",
+                "data" => $comment,
+                "message" => "show Comment thành công",
+
+            ], 200);
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json([

@@ -2,24 +2,31 @@
 
 namespace App\Trait;
 
+use App\Events\AlertOrderProduct;
 use App\Jobs\SendMailWhenOrderSuccess;
 use App\Mail\SendMailOrderSuccess;
 use App\Models\Cart;
 use App\Models\Category;
 use App\Models\Customer;
+use App\Models\Notification as ModelsNotification;
 use App\Models\Order;
 use App\Models\Order_items;
 use App\Models\Product;
+use App\Models\Notification;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Response;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\ImportUser;
+use App\Exports\ExportUser;
 
 trait CartService
 {
@@ -544,29 +551,31 @@ trait CartService
 
                 ];
 
+                $data_alert = [
+                    "order_token" =>  $order_create->order_token,
+                    "phone" =>  $customer->phone,
+                    "order_item" => Order_items::where("order_id", $order_create->id)->get(),
+                    "is_read" => 0,
 
+                ];
 
+                $newDataAlert = Notification::create($data_alert);
 
-
-
-
-
-
-
-
-
-
+                $data_alert["id"] = $newDataAlert->id;
 
                 DB::commit();
 
 
                 SendMailWhenOrderSuccess::dispatch($customer->email, $data);
 
+
+
+                event(new AlertOrderProduct($data_alert));
                 // Mail::to($customer->email)->send(new SendMailOrderSuccess($data));
 
                 return response()->json([
                     "status" => 200,
-                    "message" => "Thêm Giỏ Hàng Thành Công ",
+                    "message" => "Đặt Hàng Thành Công ",
 
 
                 ]);
@@ -650,7 +659,7 @@ trait CartService
 
                 ///set total for mail
 
-                $data_order =   Order_items::where("order_id", $order_create->id);
+                $data_order =   Order_items::where("order_id", $order_create->id)->get();
                 $total_price = 0;
 
                 foreach ($data_order as $order) {
@@ -675,16 +684,28 @@ trait CartService
                 ];
 
 
+                $data_alert = [
+                    "order_token" =>  $order_create->order_token,
+                    "phone" =>  $user_info->phone,
+                    "order_item" => Order_items::where("order_id", $order_create->id)->get(),
+                    "is_read" => 0,
 
+                ];
+
+                $newDataAlert = Notification::create($data_alert);
+
+                $data_alert["id"] = $newDataAlert->id;
 
 
                 DB::commit();
 
 
                 SendMailWhenOrderSuccess::dispatch($user_info->email, $data);
+                // return ["data" => $data, "data_order" => $data_order];
 
+                event(new AlertOrderProduct($data_alert));
                 // Mail::to($customer->email)->send(new SendMailOrderSuccess($data));
-
+                // Excel::download(new ExportUser, 'users.xlsx');
                 return response()->json([
                     "status" => 200,
                     "message" => "Thanh Toán Giỏ Hàng Thành Công ",
@@ -707,5 +728,76 @@ trait CartService
     function create_token()
     {
         return time() . Str::random(10);
+    }
+
+
+    function all_nofi()
+    {
+
+
+
+        try {
+
+
+            $data = Notification::take(6)->orderBy('is_read', 'asc')->orderBy('id', 'desc')->get();
+
+
+            DB::commit();
+            return response()->json([
+                "status" => 201,
+                "data" => $data,
+                "message" => "Show tất cả thông báo",
+
+
+            ], 200);
+        } catch (\Exception $e) {
+
+
+            DB::rollBack();
+
+            return response()->json([
+                "code" => "400",
+                "message" => $e->getMessage(),
+
+            ], 400);
+        }
+    }
+
+    function update_all_nofi()
+    {
+
+
+
+        try {
+
+
+            $records = Notification::all();
+
+            foreach ($records as $record) {
+                $record->update([
+                    'is_read' => true,
+                ]);
+            }
+
+
+            DB::commit();
+            return response()->json([
+                "status" => 201,
+
+                "message" => "update nofi thành công",
+
+
+            ], 200);
+        } catch (\Exception $e) {
+
+
+            DB::rollBack();
+
+            return response()->json([
+                "code" => "400",
+                "message" => $e->getMessage(),
+
+            ], 400);
+        }
     }
 }

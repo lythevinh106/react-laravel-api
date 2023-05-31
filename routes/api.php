@@ -26,20 +26,26 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 
-
+///product
 Route::resource('product', ProductController::class);
-
 
 Route::post('product/edit/{id}', [ProductController::class, "update"]);
 Route::get('products', [ProductController::class, "list"]);
 Route::get('productImages/{id}', [ProductController::class, "show_product_images"]);
 Route::get('product/ofCategory/{product_id}', [ProductController::class, "show_other_product"]);
 
+Route::post('product/ratingProduct/{product_id}', [ProductController::class, "ratingProduct"]);
 
+Route::post('product/checkRatingProduct/{product_id}', [ProductController::class, "checkRatingProduct"]);
+
+Route::post('product/addComment/{product_id}', [ProductController::class, "addComment"]);
+Route::post('product/showComment/{product_id}', [ProductController::class, "showComment"]);
 
 Route::resource('category', CategoryController::class);
 Route::post('category/edit/{id}', [CategoryController::class, "update"]);
 Route::get('category', [CategoryController::class, "list"]);
+
+
 
 
 
@@ -52,6 +58,12 @@ Route::post('updateCartAuth', [CartController::class, "update_cart_auth"]);
 Route::post('deleteCartAuth', [CartController::class, "delete_cart_auth"]);
 Route::post('removeAllCartAuth', [CartController::class, "remove_all_cart_auth"]);
 Route::post('paymentAuth', [CartController::class, "payment_auth"]);
+//nofication
+Route::get('showNofi', [CartController::class, "show_nofi"]);
+Route::get('updateNofi', [CartController::class, "update_nofi"]);
+
+
+
 
 
 
@@ -70,6 +82,11 @@ Route::post('auth/me', [AuthController::class, "me"]);
 Route::post('auth/payload', [AuthController::class, "payload"]);
 
 Route::post('auth/updateInfo', [AuthController::class, "update_info"]);
+
+
+
+
+
 
 
 

@@ -36,10 +36,8 @@ trait CategoryService
 
     public function create_category($request)
     {
-
         DB::beginTransaction();
         try {
-
             $validator = Validator::make(
                 $request->all(),
                 [

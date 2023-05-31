@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Product_images;
 use App\Trait\ProductService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -17,6 +18,12 @@ class ProductController extends Controller
      * @return \Illuminate\Http\Response
      */
     use ProductService;
+
+
+    public function __construct()
+    {
+        $this->middleware(['jwtAuth'], ['only' => ['ratingProduct', 'checkRatingProduct', 'addComment']]);
+    }
 
 
     public function list(Request $request)
@@ -146,7 +153,10 @@ class ProductController extends Controller
         $limit = $request->limit ?? 7;
         if ($exist_category  >= 1) {
 
-            $data = Product::where("category_id", $exist_category)->inRandomOrder()->limit($limit)->get();
+            $data = Product::where("category_id", $exist_category)->inRandomOrder()->with(['rates' => function ($query) {
+                $query->select('product_id', DB::raw('AVG(rating) as average_rating'))
+                    ->groupBy('product_id');
+            }])->limit($limit)->get();
 
             return response()->json([
                 "code" => 200,
@@ -162,5 +172,47 @@ class ProductController extends Controller
 
             ], 400);
         }
+    }
+
+
+    // public function update(Request $request, $id)
+    // {
+    //     // dd($request->all());
+    //     $response_product = $this->update_product($request, $id);
+
+    //     return response()->json($response_product);
+    // }
+
+
+    public function ratingProduct(Request $request, $product_id)
+    {
+
+
+
+        $response = $this->update_rating($request, $product_id);
+
+        return response()->json($response);
+    }
+
+
+    public function checkRatingProduct(Request  $request, $product_id)
+    {
+
+        $response = $this->check_rating($request, $product_id);
+
+        return response()->json($response);
+    }
+
+    public function addComment(Request  $request, $product_id)
+    {
+
+        $response = $this->add_comment($request, $product_id);
+        return response()->json($response);
+    }
+    public function showComment(Request  $request, $product_id)
+    {
+
+        $response = $this->show_comment($request, $product_id);
+        return response()->json($response);
     }
 }

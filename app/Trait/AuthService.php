@@ -96,7 +96,7 @@ trait AuthService
 
 
                     $data = [
-                        "link" => url("/") . "/api/auth/verify/" . $user->id . "/" . $user->remember_token,
+                        "link" => env('APP_URL') . "api/auth/verify/" . $user->id . "/" . $user->remember_token,
 
 
 

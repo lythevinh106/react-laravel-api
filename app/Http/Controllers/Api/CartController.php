@@ -143,4 +143,18 @@ class CartController extends Controller
     {
         //
     }
+
+    public function show_nofi()
+    {
+        $response = $this->all_nofi();
+
+        return response()->json($response);
+    }
+
+    public function update_nofi()
+    {
+        $response = $this->update_all_nofi();
+
+        return response()->json($response);
+    }
 }
